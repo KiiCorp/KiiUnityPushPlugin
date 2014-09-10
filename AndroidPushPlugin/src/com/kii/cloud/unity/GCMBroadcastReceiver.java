@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
@@ -17,8 +20,26 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d("GCMBroadcastReceiver", "#####onReceive");
-		ComponentName comp = new ComponentName(context.getPackageName(), GcmIntentService.class.getName());
+		ComponentName comp = getIntentService(context);
 		startWakefulService(context, (intent.setComponent(comp)));
 		setResultCode(Activity.RESULT_OK);
+	}
+	private ComponentName getIntentService(Context context) {
+		try {
+			PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SERVICES);
+			if (info.services != null) {
+				try {
+					for (ServiceInfo service : info.services) {
+						Class<?> serviceClass = Class.forName(service.name);
+						if (AbstractGcmIntentService.class.isAssignableFrom(serviceClass)) {
+							return new ComponentName(service.packageName, service.name);
+						}
+					}
+				} catch (Exception ignore) {
+				}
+			}
+		} catch (Exception ignore) {
+		}
+		return new ComponentName(context.getPackageName(), GcmIntentService.class.getName());
 	}
 }

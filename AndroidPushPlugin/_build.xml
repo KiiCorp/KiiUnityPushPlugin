@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project">
+    <property file="ant.properties" />
+    <property environment="env" />
+
+    <property name="jar.name" value="KiiCloudStorageSDK" />
+
+    <target name="setbranch">
+        <exec executable="sh" dir="."
+            outputproperty="branch-string">
+            <arg value="gitcid.sh" />
+            <arg value="${branch}" />
+        </exec>
+        <echo message="${branch-string}"/>
+    </target>
+
+    <target name="setver">
+        <exec executable="git" outputproperty="version-string">
+            <arg value="rev-list"/>
+            <arg value="-n1" />
+            <arg value="--abbrev-commit" />
+            <arg value="HEAD" />
+        </exec>
+        <echo message="${version-string}" />
+    </target>
+
+    <!-- For obfuscated jar.
+    <target name="reljar" depends="clean, release, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/proguard/obfuscated.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/proguard/obfuscated.jar" tofile="jars/${jar.name}-release-${branch-string}-${version-string}.jar"/> 
+    </target> 
+    -->
+<!--
+    <target name="reljar" depends="clean, release, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/classes.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/classes.jar" tofile="jars/${jar.name}-${branch-string}-${version-string}.jar" /> 
+    </target>
+
+    <target name="reljar-debug" depends="clean, debug, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/classes.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/classes.jar" tofile="jars/${jar.name}-debug-${branch-string}-${version-string}.jar" /> 
+        <antcall target="-after-build">
+          <param name="jar.file"
+                 value="jars/${jar.name}-debug-${branch-string}-${version-string}.jar" />
+        </antcall>
+    </target>
+
+    <target name="reljar-instrument" depends="clean, instrument, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/classes.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/classes.jar" tofile="jars/${jar.name}-instrument-${branch-string}-${version-string}.jar" /> 
+        <antcall target="-after-build">
+          <param name="jar.file"
+                 value="jars/${jar.name}-instrument-${branch-string}-${version-string}.jar" />
+        </antcall>
+    </target>
+
+    <target name="jarclean">
+        <delete dir="jars" />
+    </target>
+-->
+
+    <target name="docclean">
+        <delete dir="docdir" />
+        <delete dir="docdir-rel" />
+        <delete dir="doc-res" />
+        <mkdir dir="doc-res" />
+        <delete>
+            <fileset dir=".">
+                <include name="apidoc*.zip" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="javadoc" depends="docclean, javadoc-all, javadoc-rel" />
+
+    <target name="javadoc-all" depends="docclean">
+        <javadoc
+            doctitle="Kii Android Native Push Plugin for Unity"
+            nodeprecated="true"
+            nodeprecatedlist="true"
+            noindex="false"
+            nonavbar="false"
+            access="protected"
+            notree="true"
+            destdir="docdir"
+            additionalparam="-J-Duser.language=en"
+            Locale="en_US">
+            <fileset dir="src" defaultexcludes="yes">
+                <include name ="com/kii/cloud/unity/**" />
+                <exclude name ="**/*.html" />
+            </fileset>
+        </javadoc>
+        <copy todir="docdir/assets">
+            <fileset dir="doc-res"/>
+        </copy>
+    </target>
+
+    <target name="javadoc-rel" depends="docclean">
+        <javadoc
+            doctitle="Kii Android Native Push Plugin for Unity"
+            nodeprecated="true"
+            nodeprecatedlist="true"
+            noindex="false"
+            nonavbar="false"
+            access="protected"
+            notree="true"
+            destdir="docdir-rel"
+            additionalparam="-J-Duser.language=en"
+            Locale="en_US">
+            <fileset dir="src" defaultexcludes="yes">
+                <include name ="com/kii/cloud/unity/**" />
+                <exclude name ="**/*.html" />
+            </fileset>
+        </javadoc>
+        <copy todir="docdir-rel/assets">
+            <fileset dir="doc-res"/>
+        </copy>
+    </target>
+
+    <target name="doc_archive" depends="javadoc, setbranch, setbranch, setver">
+        <zip destfile="apidoc-all-${branch-string}-${version-string}.zip" basedir="docdir" />
+        <zip destfile="apidoc-release-${branch-string}-${version-string}.zip" basedir="docdir-rel" />
+    </target>
+</project>

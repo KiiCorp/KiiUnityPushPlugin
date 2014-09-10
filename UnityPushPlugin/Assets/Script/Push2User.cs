@@ -1,4 +1,4 @@
-﻿﻿using UnityEngine;
+﻿using UnityEngine;
 using KiiCorp.Cloud.Storage;
 using KiiCorp.Cloud.Unity;
 using System;
@@ -23,7 +23,7 @@ public class Push2User : MonoBehaviour {
 	void Awake()
 	{
 		Debug.Log ("#####Main.Awake");
-		Kii.Initialize ("f39c2d34", "2e98ef0bb78a58da92f9ac0709dc99ed", Kii.Site.JP);
+//		Kii.Initialize ("f39c2d34", "2e98ef0bb78a58da92f9ac0709dc99ed", Kii.Site.JP);
 	}
 	
 	// Use this for initialization
@@ -51,6 +51,13 @@ public class Push2User : MonoBehaviour {
 		};
 		this.kiiPushPlugin.OnPushMessageReceived += this.receivedCallback;
 
+		string lastMessage = this.kiiPushPlugin.GetLastMessage ();
+		if (lastMessage != null)
+		{
+			this.message += "#### launch from notification!!!! " + lastMessage;
+			return;
+		}
+
 		pushSetting = new PushSetting ();
 		apnsSetting = new APNSSetting ();
 		gcmSetting = new GCMSetting ();
@@ -65,7 +72,7 @@ public class Push2User : MonoBehaviour {
 			if (e1 != null)
 			{
 				KiiUser newUser = KiiUser.BuilderWithName (USER_NAME).Build ();
-				Debug.Log ("#####Register");
+				Debug.Log ("#####Register username=" + USER_NAME);
 				newUser.Register (PASSWORD, (KiiUser u2, Exception e2) => {
 					Debug.Log ("#####callback Register");
 					if (e2 != null)
@@ -82,11 +89,22 @@ public class Push2User : MonoBehaviour {
 			}
 			else
 			{
+				Debug.Log ("#####Login username=" + USER_NAME);
 				Invoke("registerPush", 0);
 			}
 		});
 	}
-
+	void OnApplicationPause (bool pauseStatus)
+	{
+		if (!pauseStatus)
+		{
+			string lastMessage = this.kiiPushPlugin.GetLastMessage ();
+			if (lastMessage != null) {
+				this.message += "#### launch from notification!!!! " + lastMessage;
+				return;
+			}
+		}
+	}
 	void registerPush()
 	{
 		#if UNITY_IPHONE

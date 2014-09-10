@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Push To App -->
+	<string name="kii_push_app_showInNotificationArea">true</string>
+	<string name="kii_push_app_useSound">true</string>
+	<string name="kii_push_app_ledColor">#ff00ff00</string>
+	<string name="kii_push_app_vibrationMilliseconds">10</string>
+	<string name="kii_push_app_notificationTitle">Push notification received</string>
+	<string name="kii_push_app_notificationText">Push to App</string>
+	<!-- Push To User -->
+	<string name="kii_push_user_showInNotificationArea">true</string>
+	<string name="kii_push_user_useSound">true</string>
+	<string name="kii_push_user_ledColor">#ff00ff00</string>
+	<string name="kii_push_user_vibrationMilliseconds">10</string>
+	<string name="kii_push_user_notificationTitle">Push notification received</string>
+	<string name="kii_push_user_notificationText">Push to User</string>
+	<!-- Direct Push -->
+	<string name="kii_push_direct_showInNotificationArea">true</string>
+	<string name="kii_push_direct_useSound">true</string>
+	<string name="kii_push_direct_ledColor">#ff00ff00</string>
+	<string name="kii_push_direct_vibrationMilliseconds">10</string>
+	<string name="kii_push_direct_notificationTitle">Push notification received</string>
+	<string name="kii_push_direct_notificationText">Direct Push</string>
+</resources>

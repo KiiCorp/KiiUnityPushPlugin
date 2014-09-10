@@ -1,4 +1,4 @@
-﻿﻿using UnityEngine;
+﻿using UnityEngine;
 using KiiCorp.Cloud.Storage;
 using KiiCorp.Cloud.Unity;
 using System;
@@ -17,14 +17,21 @@ public class Push2App : MonoBehaviour {
 	void Awake()
 	{
 		Debug.Log ("#####Main.Awake");
-		Kii.Initialize ("f39c2d34", "2e98ef0bb78a58da92f9ac0709dc99ed", Kii.Site.JP);
+//		Kii.Initialize ("f39c2d34", "2e98ef0bb78a58da92f9ac0709dc99ed", Kii.Site.JP);
 	}
-	
+
 	// Use this for initialization
 	void Start ()
 	{
 		Debug.Log ("#####Main.Start");
 		this.kiiPushPlugin = GameObject.Find ("KiiPushPlugin").GetComponent<KiiPushPlugin> ();
+
+		String pushMessage = this.kiiPushPlugin.GetLastMessage();
+		if (pushMessage != null)
+		{
+			this.message = pushMessage;
+			return;
+		}
 
 		this.receivedCallback = (ReceivedMessage message) => {
 			switch (message.PushMessageType) {
@@ -44,6 +51,13 @@ public class Push2App : MonoBehaviour {
 		};
 		this.kiiPushPlugin.OnPushMessageReceived += this.receivedCallback;
 
+		string lastMessage = this.kiiPushPlugin.GetLastMessage ();
+		if (lastMessage != null)
+		{
+			this.message += "#### launch from notification!!!! " + lastMessage;
+			return;
+		}
+
 		if (KiiUser.CurrentUser != null)
 		{
 			Invoke("registerPush", 0);
@@ -54,7 +68,7 @@ public class Push2App : MonoBehaviour {
 			if (e1 != null)
 			{
 				KiiUser newUser = KiiUser.BuilderWithName (USER_NAME).Build ();
-				Debug.Log ("#####Register");
+				Debug.Log ("#####Register username=" + USER_NAME);
 				newUser.Register (PASSWORD, (KiiUser u2, Exception e2) => {
 					Debug.Log ("#####callback Register");
 					if (e2 != null)
@@ -71,11 +85,22 @@ public class Push2App : MonoBehaviour {
 			}
 			else
 			{
+				Debug.Log ("#####Login username=" + USER_NAME);
 				Invoke("registerPush", 0);
 			}
 		});
 	}
-
+	void OnApplicationPause (bool pauseStatus)
+	{
+		if (!pauseStatus)
+		{
+			string lastMessage = this.kiiPushPlugin.GetLastMessage ();
+			if (lastMessage != null) {
+				this.message += "#### launch from notification!!!! " + lastMessage;
+				return;
+			}
+		}
+	}
 	void registerPush()
 	{		
 		#if UNITY_IPHONE
@@ -109,36 +134,30 @@ public class Push2App : MonoBehaviour {
 					return;
 				}
 				KiiBucket bucket = KiiUser.CurrentUser.Bucket(BUCKET_NAME);
-//				bucket.Acl(BucketAction.CREATE_OBJECTS_IN_BUCKET).Subject(KiiAnyAuthenticatedUser.Get()).Save(ACLOperation.GRANT, (KiiACLEntry<KiiBucket, BucketAction> entry, Exception e5)=>{
-//					if (e5 != null)
-//					{
-//						Debug.Log ("#####Failed to grant acl to the bucket");
-//						this.ShowException("Failed to grant acl to the bucket", e5);
-//						return;
-//					}
-					Debug.Log ("#####Subscribe");
-					KiiUser.CurrentUser.PushSubscription.Subscribe(bucket, (KiiSubscribable subscribable, Exception e6) => {
-						Debug.Log ("#####callback Subscribe");
-						if (e6 != null)
+				Debug.Log ("#####Subscribe");
+				String userId = KiiUser.CurrentUser.GetString("userID");
+				Debug.Log ("#####https://api-jp.kii.com/api/apps/f39c2d34/users/" + userId + "/buckets/app_bucket/objects");
+				KiiUser.CurrentUser.PushSubscription.Subscribe(bucket, (KiiSubscribable subscribable, Exception e6) => {
+					Debug.Log ("#####callback Subscribe");
+					if (e6 != null)
+					{
+						if (e6 is ConflictException)
 						{
-							if (e6 is ConflictException)
-							{
-								this.message += "Bucket is already subscribed" + "\n";
-								this.message += "Push is ready";
-								Debug.Log ("#####all setup success!!!!!!");
-								return;
-							}
-							Debug.Log ("#####failed to Subscribe");
-							this.ShowException("Failed to subscribe bucket", e6);
-							return;
-						}
-						else
-						{
+							this.message += "Bucket is already subscribed" + "\n";
 							this.message += "Push is ready";
 							Debug.Log ("#####all setup success!!!!!!");
+							return;
 						}
-					});
-//				});
+						Debug.Log ("#####failed to Subscribe");
+						this.ShowException("Failed to subscribe bucket", e6);
+						return;
+					}
+					else
+					{
+						this.message += "Push is ready";
+						Debug.Log ("#####all setup success!!!!!!");
+					}
+				});
 			});
 		});
 	}

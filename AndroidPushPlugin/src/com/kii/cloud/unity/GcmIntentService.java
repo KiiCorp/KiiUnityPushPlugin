@@ -1,41 +1,91 @@
 package com.kii.cloud.unity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-
-public class GcmIntentService extends IntentService {
+/**
+ * @author noriyoshi.fukuzaki@kii.com
+ *
+ */
+public class GcmIntentService extends AbstractGcmIntentService {
 
 	public GcmIntentService() {
-		super("KiiGcmIntentService");
+		super();
 	}
 	@Override
-	protected void onHandleIntent(Intent intent) {
-		Log.d("GcmIntentService", "#####onHandleIntent");
-		GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-		String messageType = gcm.getMessageType(intent);
-		Log.d("GcmIntentService", "#####messageType=" + messageType);
-		if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-			Bundle extras = intent.getExtras();
-			String message = this.toJson(extras).toString();
-			KiiPushUnityPlugin.getInstance().sendPushNotification(message);
+	protected boolean onHandlePushMessage(MessageType messageType, JSONObject receivedMessage, boolean isForeground) {
+		// Get configuration from resource file.
+		NotificationAreaConfiguration config = this.getNotificationConfiguration(messageType);
+		if (config.isShowInNotificationArea() && !isForeground) {
+			this.showNotificationArea(
+					receivedMessage,
+					config.isUseSound(),
+					config.getLedSettings(),
+					config.getVibrationMilliseconds(),
+					config.getNotificationTitle(),
+					config.getNotificationText());
 		}
-		GCMBroadcastReceiver.completeWakefulIntent(intent);
+		return true;
 	}
-	private JSONObject toJson(Bundle bundle) {
-		JSONObject json = new JSONObject();
-		for (String key : bundle.keySet()) {
-			try {
-				json.put(key, bundle.get(key));
-			} catch (JSONException ignore) {
-			}
+	/**
+	 * Gets configuration of behavior when received push notification from resource file.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private NotificationAreaConfiguration getNotificationConfiguration(MessageType type) {
+		String prefix = null;
+		switch (type) {
+			case PUSH_TO_APP:
+				prefix = "kii_push_app_";
+				break;
+			case PUSH_TO_USER:
+				prefix = "kii_push_user_";
+				break;
+			case DIRECT_PUSH:
+				prefix = "kii_push_direct_";
+				break;
 		}
-		return json;
+		boolean showInNotificationArea = this.getResouceValueAsBoolean(prefix + "showInNotificationArea");
+		boolean useSound = this.getResouceValueAsBoolean(prefix + "useSound");
+		String ledColor = this.getResouceValueAsString(prefix + "ledColor");
+		int vibrationMilliseconds = this.getResouceValueAsInteger(prefix + "vibrationMilliseconds");
+		String notificationTitle = this.getResouceValueAsString(prefix + "notificationTitle");
+		String notificationText = this.getResouceValueAsString(prefix + "notificationText");
+		return new NotificationAreaConfiguration(showInNotificationArea, useSound, ledColor, vibrationMilliseconds, notificationTitle, notificationText);
+	}
+	private static class NotificationAreaConfiguration {
+		private final boolean showInNotificationArea;
+		private final boolean useSound;
+		private final String ledSettings;
+		private final int vibrationMilliseconds;
+		private final String notificationTitle;
+		private final String notificationText;
+		NotificationAreaConfiguration(boolean showInNotificationArea, boolean useSound, String ledSettings, int vibrationMilliseconds, String notificationTitle, String notificationText)
+		{
+			this.showInNotificationArea = showInNotificationArea;
+			this.useSound = useSound;
+			this.ledSettings = ledSettings;
+			this.vibrationMilliseconds = vibrationMilliseconds;
+			this.notificationTitle = notificationTitle;
+			this.notificationText = notificationText;
+		}
+		public boolean isShowInNotificationArea() {
+			return showInNotificationArea;
+		}
+		public boolean isUseSound() {
+			return useSound;
+		}
+		public String getLedSettings() {
+			return ledSettings;
+		}
+		public long getVibrationMilliseconds() {
+			return vibrationMilliseconds;
+		}
+		public String getNotificationTitle() {
+			return notificationTitle;
+		}
+		public String getNotificationText() {
+			return notificationText;
+		}
 	}
 }
