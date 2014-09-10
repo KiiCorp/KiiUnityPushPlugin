@@ -2,6 +2,7 @@
 androidpushplugin.jar
 androidpushplugin.jar.meta
 *.class
+*.unitypackage
 */bin
 */gen
 
