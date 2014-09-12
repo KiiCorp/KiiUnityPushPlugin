@@ -1,6 +1,7 @@
 # KiiUnityPushPlugin
 This project is native plugin to receive push notification for the Unity3D.  
-By adding code to this project, you can customize the behavior when it receives a push notification. 
+You can customize the behavior when app receives a push notification. 
+
 
 ## Overview about the push notification mechanism
 
@@ -42,6 +43,18 @@ By adding code to this project, you can customize the behavior when it receives 
       |                        |
       +------------------------+
 
+
+## Customize the behavior of iOS
+1. implement a custom code by editing `UnityPushPlugin/Assets/Plugins/iOS/UIApplication+KiiCloud.m`
+1. add `DllImport` statement to `UnityPushPlugin/Assets/Plugins/KiiPushPlugin.cs` if you want to use the native method which you've implemented.
+
+
+## Customize the behavior of Android
+1. import `AndroidPushPlugin/` project into the Eclipse.
+1. implement a custom code.
+1. add code to call native code using AndroidJavaObject class to `UnityPushPlugin/Assets/Plugins/KiiPushPlugin.cs`.
+
+
 ## Build
 
 ### Requirements
@@ -52,3 +65,8 @@ By adding code to this project, you can customize the behavior when it receives 
 ### How to build
 1. `$ sh build.sh`
 1. KiiPushPlugin.unitypackage will be generated in bin directory.
+
+
+## Support
+If you have any questions, please feel free to ask at [community](http://community.kii.com/).
+
