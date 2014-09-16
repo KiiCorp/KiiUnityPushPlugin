@@ -39,22 +39,16 @@ char* cStringCopy(const char* string)
 }
 char* getLastMessage()
 {
-    NSLog(@"getLastMessage#1");
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSLog(@"getLastMessage#2");
     NSString *message = [ud stringForKey:@"LAST_MESSAGE"];
-    NSLog(@"getLastMessage#3");
-    NSLog(message);
     if (message)
     {
-        NSLog(@"getLastMessage#4");
         [ud removeObjectForKey:@"LAST_MESSAGE"];
         [ud synchronize];
         return cStringCopy([message UTF8String]);;
     }
     else
     {
-        NSLog(@"getLastMessage#6");
         return NULL;
     }
 }
