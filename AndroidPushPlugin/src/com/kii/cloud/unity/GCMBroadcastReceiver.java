@@ -32,6 +32,7 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 					for (ServiceInfo service : info.services) {
 						Class<?> serviceClass = Class.forName(service.name);
 						if (AbstractGcmIntentService.class.isAssignableFrom(serviceClass)) {
+							Log.d("GCMBroadcastReceiver", "found the IntentService. package=" + service.packageName + " class=" + service.name);
 							return new ComponentName(service.packageName, service.name);
 						}
 					}
@@ -40,6 +41,7 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 			}
 		} catch (Exception ignore) {
 		}
+		Log.w("GCMBroadcastReceiver", "cannot find the IntentService in AndroidManifest.xml try to use defalut. package=" + context.getPackageName() + " class=" + GcmIntentService.class.getName());
 		return new ComponentName(context.getPackageName(), GcmIntentService.class.getName());
 	}
 }

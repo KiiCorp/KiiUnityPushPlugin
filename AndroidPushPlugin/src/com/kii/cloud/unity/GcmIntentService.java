@@ -2,6 +2,8 @@ package com.kii.cloud.unity;
 
 import org.json.JSONObject;
 
+import android.content.Context;
+
 /**
  * @author noriyoshi.fukuzaki@kii.com
  *
@@ -12,11 +14,12 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		super();
 	}
 	@Override
-	protected boolean onHandlePushMessage(MessageType messageType, JSONObject receivedMessage, boolean isForeground) {
+	protected boolean onHandlePushMessage(Context context, MessageType messageType, JSONObject receivedMessage, boolean isForeground) {
 		// Get configuration from resource file.
 		NotificationAreaConfiguration config = this.getNotificationConfiguration(messageType);
 		if (config.isShowInNotificationArea() && !isForeground) {
 			this.showNotificationArea(
+					context,
 					receivedMessage,
 					config.isUseSound(),
 					config.getLedSettings(),

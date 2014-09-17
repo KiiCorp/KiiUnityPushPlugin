@@ -17,6 +17,9 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -44,7 +47,7 @@ public abstract class AbstractGcmIntentService extends IntentService {
 			Bundle extras = intent.getExtras();
 			JSONObject message = this.toJson(extras);
 			MessageType type = getMessageType(message);
-			boolean isPropagate = this.onHandlePushMessage(type, message, this.isForeground());
+			boolean isPropagate = this.onHandlePushMessage(this, type, message, this.isForeground());
 			if (isPropagate) {
 				KiiPushUnityPlugin.getInstance().sendPushNotification(this, message.toString());
 			}
@@ -54,12 +57,13 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	/**
 	 * Called by IntentService when service receives push notification.
 	 * 
+	 * @param context
 	 * @param messageType
 	 * @param receivedMessage 
 	 * @param isForeground
 	 * @return Return true if you want to raise a receiving event to the Unity.
 	 */
-	protected abstract boolean onHandlePushMessage(MessageType messageType, JSONObject receivedMessage, boolean isForeground);
+	protected abstract boolean onHandlePushMessage(Context context, MessageType messageType, JSONObject receivedMessage, boolean isForeground);
 	/**
 	 * Converts Bundle to JSONObject.
 	 * 
@@ -79,15 +83,24 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	/**
 	 * Gets resource id of launcher icon.
 	 * 
-	 * @return
+	 * @param context
+	 * @return int The associated resource identifier. Returns 0 if no such resource was found. (0 is not a valid resource ID.)
 	 */
-	protected int getIcon() {
-		return this.getResources().getIdentifier("ic_launcher", "drawable", this.getPackageName());
+	protected int getIcon(Context context) {
+		try {
+			int icon = this.getResources().getIdentifier("ic_launcher", "drawable", this.getPackageName());
+			if (icon == 0) {
+				icon = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).icon;
+			}
+			return icon;
+		} catch (NameNotFoundException e) {
+			return 0;
+		}
 	}
 	/**
 	 * Gets resource id of sound file.
 	 * 
-	 * @return
+	 * @return int The associated resource identifier. Returns 0 if no such resource was found. (0 is not a valid resource ID.)
 	 */
 	protected int getSound() {
 		return this.getResources().getIdentifier("default_sound", "raw", this.getPackageName());
@@ -95,15 +108,22 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	/**
 	 * Gets app name
 	 * 
+	 * @param context
 	 * @return
 	 */
-	protected String getAppName() {
+	protected String getAppName(Context context) {
+		PackageManager packageManager = context.getPackageManager();
+		try {
+			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
+			return packageManager.getApplicationLabel(applicationInfo).toString();
+		} catch (NameNotFoundException ignore) {
+		}
 		try {
 			int resourceId = this.getResources().getIdentifier("app_name", "string", this.getPackageName());
 			return this.getResources().getString(resourceId);
 		} catch (Exception ignore) {
-			return "Missing @string/app_name";
 		}
+		return "Missing @string/app_name";
 	}
 	/**
 	 * Checks if the application is on foreground.
@@ -172,6 +192,7 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	/**
 	 * Shows a received message in the notification area.
 	 * 
+	 * @param context
 	 * @param message 
 	 * @param useSound 
 	 * @param ledColor format is '#AARRGGBB'
@@ -179,11 +200,11 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * @param title Literal text or JsonPath
 	 * @param text Literal text or JsonPath
 	 */
-	protected void showNotificationArea(JSONObject message, boolean useSound, String ledColor, long vibrationMilliseconds, String title, String text) {
+	protected void showNotificationArea(Context context, JSONObject message, boolean useSound, String ledColor, long vibrationMilliseconds, String title, String text) {
 		NotificationManager notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
 		if (notificationManager != null) {
 			
-			String notificationTitle = this.getText(message, title, this.getAppName());
+			String notificationTitle = this.getText(message, title, this.getAppName(context));
 			String notificationText = this.getText(message, text, "");
 			
 			String launchClassName = this.getPackageManager().getLaunchIntentForPackage(this.getPackageName()).getComponent().getClassName();
@@ -192,15 +213,17 @@ public abstract class AbstractGcmIntentService extends IntentService {
 			notificationIntent.putExtra("notificationData", message.toString());
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			
-			int icon = this.getIcon();
+			int icon = this.getIcon(context);
 			NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 				.setContentIntent(pendingIntent)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
 				.setAutoCancel(true)
 				.setWhen(System.currentTimeMillis())
-				.setSmallIcon(icon)
 				.setContentTitle(notificationTitle)
 				.setContentText(notificationText);
+			if (icon != 0) {
+				notificationBuilder.setSmallIcon(icon);
+			}
 			Notification notification = notificationBuilder.build();
 			notification.defaults = 0;
 			if (useSound) {
@@ -239,7 +262,9 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 */
 	protected String getText(JSONObject json, String text, String fallback) {
 		try {
-			if (JsonPath.isJsonQuery(text)) {
+			if (TextUtils.isEmpty(text)) {
+				return fallback;
+			} else if (JsonPath.isJsonQuery(text)) {
 				String value = JsonPath.query(json, text);
 				if (value == null) {
 					return fallback;
