@@ -239,9 +239,11 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				notification.defaults |= Notification.DEFAULT_LIGHTS;
 			} else if (!TextUtils.isEmpty(ledColor)) {
 				try {
-					int argb = (int)Long.parseLong(ledColor.replaceFirst("#", ""), 16);
+					int argb = parseArgb(ledColor);
 					notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-					notification.ledARGB = argb;
+					if (argb >= 0) {
+						notification.ledARGB = argb;
+					}
 					notification.ledOnMS = 1000;
 					notification.ledOffMS = 1000;
 				} catch (Exception ignore) {
@@ -252,6 +254,20 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				notification.vibrate = vibratePattern;
 			}
 			notificationManager.notify(0, notification);
+		}
+	}
+	/**
+	 * Convert string  value which indicates color into the integer value.
+	 * 
+	 * @param argbString #AARRGGBB
+	 * @return
+	 */
+	protected int parseArgb(String argbString) {
+		try {
+			int argb = (int)Long.parseLong(argbString.replaceFirst("#", ""), 16);
+			return argb;
+		} catch (Exception ignore) {
+			return -1;
 		}
 	}
 	/**

@@ -22,7 +22,7 @@ public class GcmIntentService extends AbstractGcmIntentService {
 					context,
 					receivedMessage,
 					config.isUseSound(),
-					config.getLedSettings(),
+					config.getLedColor(),
 					config.getVibrationMilliseconds(),
 					config.getNotificationTitle(),
 					config.getNotificationText());
@@ -59,15 +59,15 @@ public class GcmIntentService extends AbstractGcmIntentService {
 	private static class NotificationAreaConfiguration {
 		private final boolean showInNotificationArea;
 		private final boolean useSound;
-		private final String ledSettings;
+		private final String ledColor;
 		private final int vibrationMilliseconds;
 		private final String notificationTitle;
 		private final String notificationText;
-		NotificationAreaConfiguration(boolean showInNotificationArea, boolean useSound, String ledSettings, int vibrationMilliseconds, String notificationTitle, String notificationText)
+		NotificationAreaConfiguration(boolean showInNotificationArea, boolean useSound, String ledColor, int vibrationMilliseconds, String notificationTitle, String notificationText)
 		{
 			this.showInNotificationArea = showInNotificationArea;
 			this.useSound = useSound;
-			this.ledSettings = ledSettings;
+			this.ledColor = ledColor;
 			this.vibrationMilliseconds = vibrationMilliseconds;
 			this.notificationTitle = notificationTitle;
 			this.notificationText = notificationText;
@@ -78,8 +78,8 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		public boolean isUseSound() {
 			return useSound;
 		}
-		public String getLedSettings() {
-			return ledSettings;
+		public String getLedColor() {
+			return ledColor;
 		}
 		public long getVibrationMilliseconds() {
 			return vibrationMilliseconds;
