@@ -296,8 +296,15 @@ namespace KiiCorp.Cloud.Unity
 			{
 				Debug.Log ("#####OnPushNotificationsReceived");
 				Debug.Log ("#####payload=" + payload);
-				ReceivedMessage message = ReceivedMessage.Parse (payload);
-				this.OnPushMessageReceived (message);
+				if (this.OnPushMessageReceived != null)
+				{
+					ReceivedMessage message = ReceivedMessage.Parse (payload);
+					this.OnPushMessageReceived (message);
+				}
+				else
+				{
+					Debug.Log("#####WARN:Event OnPushMessageReceived is not bound");
+				}
 			}
 			catch (Exception e)
 			{

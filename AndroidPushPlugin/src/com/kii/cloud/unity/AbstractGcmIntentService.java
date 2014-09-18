@@ -20,7 +20,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
@@ -223,6 +226,10 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				.setContentText(notificationText);
 			if (icon != 0) {
 				notificationBuilder.setSmallIcon(icon);
+				Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), icon);
+				if (largeIcon != null && Build.VERSION.SDK_INT >= 11) {
+					notificationBuilder.setLargeIcon(largeIcon);
+				}
 			}
 			Notification notification = notificationBuilder.build();
 			notification.defaults = 0;
@@ -239,9 +246,9 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				notification.defaults |= Notification.DEFAULT_LIGHTS;
 			} else if (!TextUtils.isEmpty(ledColor)) {
 				try {
-					int argb = parseArgb(ledColor);
+					Integer argb = parseArgb(ledColor);
 					notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-					if (argb >= 0) {
+					if (argb != null) {
 						notification.ledARGB = argb;
 					}
 					notification.ledOnMS = 1000;
@@ -262,12 +269,12 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * @param argbString #AARRGGBB
 	 * @return
 	 */
-	protected int parseArgb(String argbString) {
+	protected Integer parseArgb(String argbString) {
 		try {
 			int argb = (int)Long.parseLong(argbString.replaceFirst("#", ""), 16);
 			return argb;
 		} catch (Exception ignore) {
-			return -1;
+			return null;
 		}
 	}
 	/**
