@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -20,6 +22,7 @@ import com.unity3d.player.UnityPlayer;
 public class KiiPushUnityPlugin {
 	
 	private static KiiPushUnityPlugin INSTANCE = new KiiPushUnityPlugin();
+	private static Handler handler = new Handler(Looper.getMainLooper());
 	
 	public static KiiPushUnityPlugin getInstance() {
 		Log.d("KiiPushUnityPlugin", "#####KiiPushUnityPlugin.getInstance()");
@@ -77,54 +80,64 @@ public class KiiPushUnityPlugin {
 	}
 	public void getRegistrationID() {
 		Log.d("KiiPushUnityPlugin", "#####getRegistrationID");
-		AsyncTask<String, Void, Void> registerTask = new AsyncTask<String, Void, Void>() {
-			@Override
-			protected Void doInBackground(String... params) {
-				String registrationId = "";
-				String errorMessage = "";
-				for (int retry = 0; retry < 3; retry++) {
-					try {
-						GoogleCloudMessaging gcm = GoogleCloudMessaging
-								.getInstance(UnityPlayer.currentActivity);
-						registrationId = gcm.register(params[1]);
-					} catch (Throwable e) {
-						// Nothing to do.
-						Log.d("KiiPushUnityPlugin", "#####Push register is failed");
-						errorMessage = e.getMessage();
+		// Ensure that the AsyncTask is called from main thread.
+		handler.post(new Runnable() {
+			public void run() {
+				AsyncTask<String, Void, Void> registerTask = new AsyncTask<String, Void, Void>() {
+					@Override
+					protected Void doInBackground(String... params) {
+						String registrationId = "";
+						String errorMessage = "";
+						for (int retry = 0; retry < 3; retry++) {
+							try {
+								GoogleCloudMessaging gcm = GoogleCloudMessaging
+										.getInstance(UnityPlayer.currentActivity);
+								registrationId = gcm.register(params[1]);
+							} catch (Throwable e) {
+								// Nothing to do.
+								Log.d("KiiPushUnityPlugin", "#####Push register is failed");
+								errorMessage = e.getMessage();
+							}
+							if (!registrationId.equals("")) {
+								Log.d("KiiPushUnityPlugin", "#####Found RegistrationID : " + registrationId);
+								break;
+							}
+						}
+						if (TextUtils.isEmpty(registrationId)) {
+							UnitySendMessage(params[0], "OnRegisterPushFailed", errorMessage);
+						} else {
+							UnitySendMessage(params[0], "OnRegisterPushSucceeded", registrationId);
+						}
+						return null;
 					}
-					if (!registrationId.equals("")) {
-						Log.d("KiiPushUnityPlugin", "#####Found RegistrationID : " + registrationId);
-						break;
-					}
-				}
-				if (TextUtils.isEmpty(registrationId)) {
-					UnitySendMessage(params[0], "OnRegisterPushFailed", errorMessage);
-				} else {
-					UnitySendMessage(params[0], "OnRegisterPushSucceeded", registrationId);
-				}
-				return null;
+				};
+				registerTask.execute(getListenerGameObjectName(), senderId);
 			}
-		};
-		registerTask.execute(this.getListenerGameObjectName(), this.senderId);
+		});
 	}
 	public void unregisterGCM() throws IOException {
 		Log.d("KiiPushUnityPlugin", "#####unregisterGCM");
-		AsyncTask<String, Void, Void> unregisterTask = new AsyncTask<String, Void, Void>() {
-			@Override
-			protected Void doInBackground(String... params) {
-				GoogleCloudMessaging gcm = GoogleCloudMessaging
-						.getInstance(UnityPlayer.currentActivity);
-				try {
-					gcm.unregister();
-					UnitySendMessage(params[0], "OnUnregisterPushSucceeded", "");
-				} catch (IOException e) {
-					Log.d("KiiPushUnityPlugin", "#####Push unregister is failed");
-					UnitySendMessage(params[0], "OnUnregisterPushFailed", e.getMessage());
-				}
-				return null;
+		// Ensure that the AsyncTask is called from main thread.
+		handler.post(new Runnable() {
+			public void run() {
+				AsyncTask<String, Void, Void> unregisterTask = new AsyncTask<String, Void, Void>() {
+					@Override
+					protected Void doInBackground(String... params) {
+						GoogleCloudMessaging gcm = GoogleCloudMessaging
+								.getInstance(UnityPlayer.currentActivity);
+						try {
+							gcm.unregister();
+							UnitySendMessage(params[0], "OnUnregisterPushSucceeded", "");
+						} catch (IOException e) {
+							Log.d("KiiPushUnityPlugin", "#####Push unregister is failed");
+							UnitySendMessage(params[0], "OnUnregisterPushFailed", e.getMessage());
+						}
+						return null;
+					}
+				};
+				unregisterTask.execute(getListenerGameObjectName());
 			}
-		};
-		unregisterTask.execute(this.getListenerGameObjectName());
+		});
 	}
 	private void UnitySendMessage(String object, String method, String message) {
 		try {
