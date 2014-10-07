@@ -5,11 +5,19 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 /**
- * 
+ * Utility class for JSONPath.
+ * This class supports simple JSONPath only. 
  * 
  * @author noriyoshi.fukuzaki@kii.com
  */
 public class JsonPath {
+	/**
+	 * Executes a JsonPATH query that returns a string as the result.
+	 * 
+	 * @param json
+	 * @param query
+	 * @return
+	 */
 	public static String query(JSONObject json, String query) {
 		String[] fields = query.replace("$.", "").split("\\.");
 		try {
@@ -28,6 +36,12 @@ public class JsonPath {
 			return null;
 		}
 	}
+	/**
+	 * Check the if a query is a JSONPath.
+	 * 
+	 * @param query
+	 * @return
+	 */
 	public static boolean isJsonQuery(String query) {
 		if (TextUtils.isEmpty(query)) {
 			return false;

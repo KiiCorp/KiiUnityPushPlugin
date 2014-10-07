@@ -5,8 +5,10 @@ import org.json.JSONObject;
 import android.content.Context;
 
 /**
+ * Default implementation of AbstractGcmIntentService.
+ * You can change a behavior when a push notification is received by edit the configuration file /Plugins/Android/res/values/kii-push-config.xml. 
+ * 
  * @author noriyoshi.fukuzaki@kii.com
- *
  */
 public class GcmIntentService extends AbstractGcmIntentService {
 
@@ -56,6 +58,9 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		String notificationText = this.getResouceValueAsString(prefix + "notificationText");
 		return new NotificationAreaConfiguration(showInNotificationArea, useSound, ledColor, vibrationMilliseconds, notificationTitle, notificationText);
 	}
+	/**
+	 * Configuration class for showing notification area.
+	 */
 	private static class NotificationAreaConfiguration {
 		private final boolean showInNotificationArea;
 		private final boolean useSound;

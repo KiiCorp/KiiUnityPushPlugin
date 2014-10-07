@@ -11,7 +11,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 /**
- * 
+ * Implementation of BroadcastReceiver to handle a push notification.
  * 
  * @author noriyoshi.fukuzaki@kii.com
  */

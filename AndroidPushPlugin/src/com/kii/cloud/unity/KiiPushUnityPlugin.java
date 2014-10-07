@@ -15,7 +15,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.unity3d.player.UnityPlayer;
 
 /**
- * 
+ * Android native plugin for Unity.
  * 
  * @author noriyoshi.fukuzaki@kii.com
  */
@@ -24,6 +24,11 @@ public class KiiPushUnityPlugin {
 	private static KiiPushUnityPlugin INSTANCE = new KiiPushUnityPlugin();
 	private static Handler handler = new Handler(Looper.getMainLooper());
 	
+	/**
+	 * Get instance of KiiPushUnityPlugin.
+	 * 
+	 * @return
+	 */
 	public static KiiPushUnityPlugin getInstance() {
 		Log.d("KiiPushUnityPlugin", "#####KiiPushUnityPlugin.getInstance()");
 		return INSTANCE;
@@ -36,24 +41,50 @@ public class KiiPushUnityPlugin {
 	private KiiPushUnityPlugin() {
 		Log.d("KiiPushUnityPlugin", "#####KiiPushUnityPlugin constractor");
 	}
+	/**
+	 * Get game objectname which is bound the this code.
+	 * 
+	 * @return
+	 */
 	public String getListenerGameObjectName() {
 		if (TextUtils.isEmpty(this.listenerGameObjectName)) {
 			return "KiiPushPlugin";
 		}
 		return this.listenerGameObjectName;
 	}
+	/**
+	 * Set game objectname which is bound the this code.
+	 * 
+	 * @param listenerGameObjectName
+	 */
 	public void setListenerGameObjectName(String listenerGameObjectName) {
 		Log.d("KiiPushUnityPlugin", "#####setListenerGameObjectName " + listenerGameObjectName);
 		this.listenerGameObjectName = listenerGameObjectName;
 	}
+	/**
+	 * Get sender id.
+	 * 
+	 * @return
+	 */
 	public String getSenderId() {
 		return this.senderId;
 	}
+	/**
+	 * Set sender id.
+	 * 
+	 * @param senderId
+	 */
 	public void setSenderId(String senderId) {
 		Log.d("KiiPushUnityPlugin", "#####setSenderId " + senderId);
 		this.senderId = senderId;
 	}
 	
+	/**
+	 * Send a push notification to the Unity layer.
+	 * 
+	 * @param context
+	 * @param message
+	 */
 	public void sendPushNotification(Context context, String message) {
 		Log.d("KiiPushUnityPlugin", "#####sendPushNotification " + message);
 		Editor editor = this.getSharedPreference(context).edit();
@@ -61,6 +92,12 @@ public class KiiPushUnityPlugin {
 		editor.commit();
 		this.UnitySendMessage(this.getListenerGameObjectName(), "OnPushNotificationsReceived", message);
 	}
+	/**
+	 * Get the android SharedPreferences.
+	 * 
+	 * @param context
+	 * @return
+	 */
 	public SharedPreferences getSharedPreference(Context context) {
 		if (this.sharedPreference == null) {
 			if (context != null) {
@@ -69,6 +106,12 @@ public class KiiPushUnityPlugin {
 		}
 		return this.sharedPreference;
 	}
+	/**
+	 * Get the last push message.
+	 * The last message is deleted when you execute the this method. Calling the this again will return null.
+	 * 
+	 * @return
+	 */
 	public String getLastMessage() {
 		String lastMessage = this.getSharedPreference(UnityPlayer.currentActivity).getString("LAST_MESSAGE", null);
 		if (lastMessage != null) {
@@ -78,6 +121,9 @@ public class KiiPushUnityPlugin {
 		}
 		return lastMessage;
 	}
+	/**
+	 * Register the application for GCM and return the registration ID by UnitySendMessage.
+	 */
 	public void getRegistrationID() {
 		Log.d("KiiPushUnityPlugin", "#####getRegistrationID");
 		// Ensure that the AsyncTask is called from main thread.
@@ -115,6 +161,11 @@ public class KiiPushUnityPlugin {
 			}
 		});
 	}
+	/**
+	 * Unregister the application.
+	 * 
+	 * @throws IOException
+	 */
 	public void unregisterGCM() throws IOException {
 		Log.d("KiiPushUnityPlugin", "#####unregisterGCM");
 		// Ensure that the AsyncTask is called from main thread.
