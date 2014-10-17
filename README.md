@@ -47,7 +47,7 @@ You can customize the behavior when app receives a push notification.
 ## Customize the behavior of iOS
 1. implement a custom code by editing `UnityPushPlugin/Assets/Plugins/iOS/UIApplication+KiiCloud.m`
 1. add `DllImport` statement to `UnityPushPlugin/Assets/Plugins/KiiPushPlugin.cs` if you want to use the native method which you've implemented.
-
+1. If your iOS development environment still using XCode 5.xx, you should remove iOS8 specific push API on `UnityPushPlugin/Assets/Plugins/iOS/UIApplication+KiiCloud.m` to avoid compile error. 
 
 ## Customize the behavior of Android
 1. import `AndroidPushPlugin/` project into the Eclipse.
