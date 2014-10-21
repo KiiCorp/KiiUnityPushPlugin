@@ -15,7 +15,7 @@ void registerForRemoteNotifications()
     // Register APNS
     // If you use Xcode5, you can only use the same code as the else block.
     if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        // iOS8
+        // iOS8 : you can define categories and action below
         UIUserNotificationSettings* notificationSettings =
         [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge |
          UIUserNotificationTypeSound |
@@ -179,6 +179,18 @@ void kiiRunTimeDidReceiveRemoteNotificationInBackground(id self, SEL _cmd, id ap
     
 }
 
+void kiiRunTimeHandleActionWithIdentifier(id self, SEL _cmd, id application, id identifier id userInfo, id handler)
+{
+    NSMutableDictionary *payload = [(NSDictionary *) userInfo mutableCopy];
+    if (identifier) {
+        payload[@"actionIdentifier"] = (NSString*) identifier;
+    }
+    
+    kiiRunTimeDidReceiveRemoteNotification(self, _cmd, application, payload);
+    void (^completionHandler)()  = (void (^)()) handler;
+    completionHandler();
+}
+
 static void exchangeMethodImplementations(Class class, SEL oldMethod, SEL newMethod, IMP impl, const char * signature)
 {
 	Method method = nil;
@@ -198,6 +210,7 @@ static void exchangeMethodImplementations(Class class, SEL oldMethod, SEL newMet
 		class_addMethod(class, oldMethod, impl, signature);
 	}
 }
+
 
 - (void) setKiiDelegate:(id<UIApplicationDelegate>)delegate
 {
@@ -226,6 +239,9 @@ static void exchangeMethodImplementations(Class class, SEL oldMethod, SEL newMet
     
 	exchangeMethodImplementations(delegateClass, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:),
                                   @selector(application:kiiDidReceiveRemoteNotification:fetchCompletionHandler:), (IMP)kiiRunTimeDidReceiveRemoteNotificationInBackground, "v@::::");
+    
+    exchangeMethodImplementations(delegateClass, @selector(application:handleActionWithIdentifier:forRemoteNotification:fetchCompletionHandler:),
+                                  @selector(application:kiiHandleActionWithIdentifier:forRemoteNotification:fetchCompletionHandler:), (IMP)kiiRunTimeDidReceiveRemoteNotificationInBackground, "v@:::::");
     
 	[self setKiiDelegate:delegate];
 }
