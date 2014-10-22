@@ -240,8 +240,8 @@ static void exchangeMethodImplementations(Class class, SEL oldMethod, SEL newMet
 	exchangeMethodImplementations(delegateClass, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:),
                                   @selector(application:kiiDidReceiveRemoteNotification:fetchCompletionHandler:), (IMP)kiiRunTimeDidReceiveRemoteNotificationInBackground, "v@::::");
     
-    exchangeMethodImplementations(delegateClass, @selector(application:handleActionWithIdentifier:forRemoteNotification:fetchCompletionHandler:),
-                                  @selector(application:kiiHandleActionWithIdentifier:forRemoteNotification:fetchCompletionHandler:), (IMP)kiiRunTimeDidReceiveRemoteNotificationInBackground, "v@:::::");
+    exchangeMethodImplementations(delegateClass, @selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:),
+                                  @selector(application:kiiHandleActionWithIdentifier:forRemoteNotification:completionHandler:), (IMP)kiiRunTimeHandleActionWithIdentifier, "v@:::::");
     
 	[self setKiiDelegate:delegate];
 }
