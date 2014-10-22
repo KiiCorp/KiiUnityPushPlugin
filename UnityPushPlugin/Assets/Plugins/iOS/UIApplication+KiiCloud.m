@@ -179,7 +179,7 @@ void kiiRunTimeDidReceiveRemoteNotificationInBackground(id self, SEL _cmd, id ap
     
 }
 
-void kiiRunTimeHandleActionWithIdentifier(id self, SEL _cmd, id application, id identifier id userInfo, id handler)
+void kiiRunTimeHandleActionWithIdentifier(id self, SEL _cmd, id application, id identifier, id userInfo, id handler)
 {
     NSMutableDictionary *payload = [(NSDictionary *) userInfo mutableCopy];
     if (identifier) {
