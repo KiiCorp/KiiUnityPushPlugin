@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>PushRegister</key>
-	<string>CustomPush</string>
+	<string>DefaultPush</string>
 </dict>
 </plist>

@@ -8,48 +8,29 @@
 #import <objc/runtime.h>
 #import "UIApplication+KiiCloud.h"
 #import "PushRegister.h"
+#import "DefaultPush.h"
 
-//extern void UnitySendMessage(const char *, const char *, const char *);
-void registerDefaultRemoteNotifications(){
-    UIApplication *application = [UIApplication sharedApplication];
-    // Register APNS
-    // If you use Xcode5, you can only use the same code as the else block.
-    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        // iOS8 : you can define categories and action below
-        
-        
-        UIUserNotificationSettings* notificationSettings =
-        [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge |
-         UIUserNotificationTypeSound |
-         UIUserNotificationTypeAlert
-                                          categories:nil];
-        [application registerUserNotificationSettings:notificationSettings];
-        [application registerForRemoteNotifications];
-    } else {
-        // iOS7 or earlier
-        [application registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
-                                                         UIRemoteNotificationTypeSound |
-                                                         UIRemoteNotificationTypeAlert)];
-    }
-    
-}
 void registerForRemoteNotifications()
 {
-    NSString* plistPath=[[NSBundle mainBundle] pathForResource:@"CustomClasses" ofType:@"plist"];
+    NSString* plistPath=[[NSBundle mainBundle] pathForResource:@"IOSPushPlugins" ofType:@"plist"];
     NSDictionary* customClasses = [NSDictionary dictionaryWithContentsOfFile:plistPath];
     NSString* customPushRegistratorName =customClasses[@"PushRegister"];
+    id<PushRegister> registrator;
     if (!customClasses|| !customPushRegistratorName) {
-        registerDefaultRemoteNotifications();
+        registrator = [[DefaultPush alloc]init];
+        [registrator registerRemoteNotification];
         return;
     }
     
     Class clazz = NSClassFromString(customPushRegistratorName);
     if(clazz && [clazz conformsToProtocol:@protocol(PushRegister)]){
-        id<PushRegister> registrator= [[clazz alloc] init];
+        registrator = [[clazz alloc] init];
         
         [registrator registerRemoteNotification];
+    }else{
+        registrator = [[DefaultPush alloc]init];
+        [registrator registerRemoteNotification];
     }
-    
     
 }
 
