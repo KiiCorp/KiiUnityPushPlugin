@@ -45,7 +45,8 @@ You can customize the behavior when app receives a push notification.
 
 ## Support for iOS 8 
 1. Plugin supports for iOS8 remote push registration as well as earlier iOS version on XCode 6 development environment.
-1. If your iOS development environment still using XCode 5.xx, you should remove iOS8 specific push API on `UnityPushPlugin/Assets/Plugins/iOS/UIApplication+KiiCloud.m` to avoid compile error.
+1. If your iOS development environment still using XCode 5.xx, you should remove iOS8 specific push API on `UnityPushPlugin/Assets/Plugins/iOS/DefaultPush.m` to avoid compile error.
+1. For further explanations, please refer to [documentation](http://documentation.kii.com/en/guides/unity/managing-push-notification/customize-ios-push/).
 
 ## Customize the behavior of iOS
 1. implement a custom code by editing `UnityPushPlugin/Assets/Plugins/iOS/UIApplication+KiiCloud.m`
