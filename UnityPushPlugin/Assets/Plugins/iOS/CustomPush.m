@@ -6,7 +6,10 @@
 //
 //
 
-#import "CustomPush.h"
+#import "PushRegister.h"
+@interface CustomPush : NSObject<PushRegister>
+
+@end
 
 @implementation CustomPush
 -(void) registerRemoteNotification{

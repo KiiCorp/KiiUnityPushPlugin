@@ -10,28 +10,38 @@
 #import "PushRegister.h"
 #import "DefaultPush.h"
 
-void registerForRemoteNotifications()
-{
-    NSString* plistPath=[[NSBundle mainBundle] pathForResource:@"IOSPushPlugins" ofType:@"plist"];
-    NSDictionary* customClasses = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-    NSString* customPushRegistratorName =customClasses[@"PushRegister"];
-    id<PushRegister> registrator;
-    if (!customClasses|| !customPushRegistratorName) {
+@interface PushRegisterFactory : NSObject
++(id<PushRegister>) pushRegistratorWithClassName :(NSString*) className;
+@end
+@implementation PushRegisterFactory
+
++(id<PushRegister>) pushRegistratorWithClassName :(NSString*) className{
+    id<PushRegister> registrator= nil;
+
+    if (!className || [@"" isEqualToString:className] || [@"Default" isEqualToString:className]) {
         registrator = [[DefaultPush alloc]init];
-        [registrator registerRemoteNotification];
-        return;
+        
+        return registrator;
     }
     
-    Class clazz = NSClassFromString(customPushRegistratorName);
+    Class clazz = NSClassFromString(className);
     if(clazz && [clazz conformsToProtocol:@protocol(PushRegister)]){
         registrator = [[clazz alloc] init];
-        
-        [registrator registerRemoteNotification];
     }else{
         registrator = [[DefaultPush alloc]init];
+    }
+
+    return registrator;
+}
+
+@end
+void registerForRemoteNotifications()
+{
+    id<PushRegister> registrator = [PushRegisterFactory pushRegistratorWithClassName:@"Default"];
+    
+    if (registrator) {
         [registrator registerRemoteNotification];
     }
-    
 }
 
 void unregisterForRemoteNotifications()
