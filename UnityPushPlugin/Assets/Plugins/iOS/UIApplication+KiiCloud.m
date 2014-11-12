@@ -8,36 +8,12 @@
 #import <objc/runtime.h>
 #import "UIApplication+KiiCloud.h"
 #import "PushRegister.h"
-#import "DefaultPush.h"
+#import "PushRegisterFactory.h"
 
-@interface PushRegisterFactory : NSObject
-+(id<PushRegister>) pushRegistratorWithClassName :(NSString*) className;
-@end
-@implementation PushRegisterFactory
-
-+(id<PushRegister>) pushRegistratorWithClassName :(NSString*) className{
-    id<PushRegister> registrator= nil;
-
-    if (!className || [@"" isEqualToString:className] || [@"Default" isEqualToString:className]) {
-        registrator = [[DefaultPush alloc]init];
-        
-        return registrator;
-    }
-    
-    Class clazz = NSClassFromString(className);
-    if(clazz && [clazz conformsToProtocol:@protocol(PushRegister)]){
-        registrator = [[clazz alloc] init];
-    }else{
-        registrator = [[DefaultPush alloc]init];
-    }
-
-    return registrator;
-}
-
-@end
 void registerForRemoteNotifications()
 {
-    id<PushRegister> registrator = [PushRegisterFactory pushRegistratorWithClassName:@"Default"];
+    
+    id<PushRegister> registrator = [PushRegisterFactory getPushRegistrator];
     
     if (registrator) {
         [registrator registerRemoteNotification];
