@@ -3,8 +3,8 @@
 //  KiiPushUnity
 //
 //  Copyright (c) 2014 Kii. All rights reserved.
-#import "PushRegister.h"
+#import "CustomPushBehavior.h"
 
 @interface PushRegisterFactory : NSObject
-+ (id<PushRegister>) getPushRegistrator;
++ (id<CustomPushBehavior>) getPushRegistrator;
 @end

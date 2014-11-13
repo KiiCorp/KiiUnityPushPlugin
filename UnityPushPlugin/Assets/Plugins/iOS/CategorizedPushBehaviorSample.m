@@ -6,12 +6,12 @@
 //
 //
 
-#import "PushRegister.h"
-@interface CustomPush : NSObject<PushRegister>
+#import "CustomPushBehavior.h"
+@interface CategorizedPushBehaviorSample : NSObject<CustomPushBehavior>
 
 @end
 
-@implementation CustomPush
+@implementation CategorizedPushBehaviorSample
 -(void) registerRemoteNotification{
     UIApplication *application = [UIApplication sharedApplication];
     // Register APNS

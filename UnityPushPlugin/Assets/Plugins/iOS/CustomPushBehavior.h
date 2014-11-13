@@ -8,6 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol PushRegister <NSObject>
+@protocol CustomPushBehavior <NSObject>
 -(void) registerRemoteNotification;
 @end

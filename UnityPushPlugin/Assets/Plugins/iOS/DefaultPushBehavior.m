@@ -6,9 +6,9 @@
 //
 //
 
-#import "DefaultPush.h"
+#import "DefaultPushBehavior.h"
 
-@implementation DefaultPush
+@implementation DefaultPushBehavior
 -(void) registerRemoteNotification{
     UIApplication *application = [UIApplication sharedApplication];
     // Register APNS

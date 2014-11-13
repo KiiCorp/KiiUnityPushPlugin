@@ -5,20 +5,20 @@
 //  Copyright (c) 2014 Kii. All rights reserved.
 
 #import "PushRegisterFactory.h"
-#import "DefaultPush.h"
+#import "DefaultPushBehavior.h"
 
 @implementation PushRegisterFactory
 
-+ (id<PushRegister>) getPushRegistrator{
++ (id<CustomPushBehavior>) getPushRegistrator{
 
-    id<PushRegister> registrator = nil;
+    id<CustomPushBehavior> registrator = nil;
 
     //change class name if you want to customize push registration
     Class clazz = NSClassFromString(@"DefaultPush");
-    if(clazz && [clazz conformsToProtocol:@protocol(PushRegister)]){
+    if(clazz && [clazz conformsToProtocol:@protocol(CustomPushBehavior)]){
         registrator = [[clazz alloc] init];
     }else{
-        registrator = [[DefaultPush alloc]init];
+        registrator = [[DefaultPushBehavior alloc]init];
     }
 
     return registrator;

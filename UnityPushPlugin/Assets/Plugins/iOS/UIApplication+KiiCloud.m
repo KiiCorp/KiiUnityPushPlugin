@@ -7,13 +7,13 @@
 //
 #import <objc/runtime.h>
 #import "UIApplication+KiiCloud.h"
-#import "PushRegister.h"
+#import "CustomPushBehavior.h"
 #import "PushRegisterFactory.h"
 
 void registerForRemoteNotifications()
 {
     
-    id<PushRegister> registrator = [PushRegisterFactory getPushRegistrator];
+    id<CustomPushBehavior> registrator = [PushRegisterFactory getPushRegistrator];
     
     if (registrator) {
         [registrator registerRemoteNotification];
