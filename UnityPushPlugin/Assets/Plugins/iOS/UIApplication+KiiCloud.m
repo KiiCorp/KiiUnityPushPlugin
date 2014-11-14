@@ -8,15 +8,15 @@
 #import <objc/runtime.h>
 #import "UIApplication+KiiCloud.h"
 #import "CustomPushBehavior.h"
-#import "PushRegisterFactory.h"
+#import "PushBehaviorFactory.h"
 
 void registerForRemoteNotifications()
 {
     
-    id<CustomPushBehavior> registrator = [PushRegisterFactory getPushRegistrator];
+    id<CustomPushBehavior> pushBehavior = [PushBehaviorFactory getPushBehavior];
     
-    if (registrator) {
-        [registrator registerRemoteNotification];
+    if (pushBehavior) {
+        [pushBehavior registerRemoteNotification];
     }
 }
 
