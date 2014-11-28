@@ -32,7 +32,8 @@
         declineAction.identifier = @"DECLINE_IDENTIFIER";
         declineAction.title = @"Decline";
         declineAction.destructive = YES;
-        //declineAction.activationMode = UIUserNotificationActivationModeBackground;
+        /*Application will not launch after tapping Decline, please see iOS documentation for further detail. */
+        declineAction.activationMode = UIUserNotificationActivationModeBackground;
         declineAction.authenticationRequired = NO;
         
         
