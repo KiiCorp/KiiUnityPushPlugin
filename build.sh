@@ -16,7 +16,7 @@ cd ../
 # Place AndroidPushPlugin to UnityPushPlugin
 cp AndroidPushPlugin/bin/classes.jar UnityPushPlugin/Assets/Plugins/Android/androidpushplugin.jar
 
-sed -i '' -e 's/com.kii.unity.sample.push/YOUR_APPLICATION_PACKAGE_NAME/g' ./UnityPushPlugin/Assets/Plugins/Android/AndroidManifest.xml
+sed -i '' -e 's/com.kii.unity.sample.push/com.example.your.application.package.name/g' ./UnityPushPlugin/Assets/Plugins/Android/AndroidManifest.xml
 
 rm -rf bin
 mkdir bin
@@ -30,5 +30,5 @@ mkdir bin
                    Assets/Plugins/iOS \
                    ../bin/KiiPushPlugin.unitypackage
 
-sed -i '' -e 's/YOUR_APPLICATION_PACKAGE_NAME/com.kii.unity.sample.push/g' ./UnityPushPlugin/Assets/Plugins/Android/AndroidManifest.xml
+sed -i '' -e 's/com.example.your.application.package.name/com.kii.unity.sample.push/g' ./UnityPushPlugin/Assets/Plugins/Android/AndroidManifest.xml
 
