@@ -10,11 +10,12 @@ fi
 # Build AndroidPushPlugin
 cd AndroidPushPlugin
 android update project --path . --target android-19
-ant clean release
+./gradlew clean copyJar
 cd ../
 
 # Place AndroidPushPlugin to UnityPushPlugin
-cp AndroidPushPlugin/bin/classes.jar UnityPushPlugin/Assets/Plugins/Android/androidpushplugin.jar
+cp AndroidPushPlugin/app/build/outputs/jar/release/classes.jar \
+UnityPushPlugin/Assets/Plugins/Android/androidpushplugin.jar
 
 sed -i '' -e 's/com.kii.unity.sample.push/com.example.your.application.package.name/g' ./UnityPushPlugin/Assets/Plugins/Android/AndroidManifest.xml
 
