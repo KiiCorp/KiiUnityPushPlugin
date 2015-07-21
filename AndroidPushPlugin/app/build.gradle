@@ -1,0 +1,35 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+task deleteJar(type: Delete) {
+    delete('build/outputs/jar/release/')
+}
+
+task copyJar(type: Copy) {
+    from('build/intermediates/bundles/release/classes.jar')
+    into('build/outputs/jar/release/')
+}
+
+copyJar.dependsOn(deleteJar, assembleRelease)
+
+dependencies {
+    compile 'com.android.support:support-v4:19.1.0'
+    compile files('libs/classes.jar')
+    compile files('libs/google-play-services.jar')
+}

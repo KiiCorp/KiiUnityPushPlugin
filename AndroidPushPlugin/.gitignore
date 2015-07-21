@@ -1,4 +1,8 @@
 # Ignore Android specific files.
 local.properties
 gen/
-
+build/
+.gradle
+.idea/workspace.xml
+.idea/libraries
+.DS_Store
