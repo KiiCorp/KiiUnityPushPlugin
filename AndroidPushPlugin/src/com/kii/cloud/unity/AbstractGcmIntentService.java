@@ -84,14 +84,31 @@ public abstract class AbstractGcmIntentService extends IntentService {
 		return json;
 	}
 	/**
-	 * Gets resource id of launcher icon.
+	 * Gets resource id of small launcher icon.
 	 * 
 	 * @param context
 	 * @return int The associated resource identifier. Returns 0 if no such resource was found. (0 is not a valid resource ID.)
 	 */
-	protected int getIcon(Context context) {
+	protected int getSmallIcon(Context context) {
 		try {
 			int icon = this.getResources().getIdentifier("ic_launcher", "drawable", this.getPackageName());
+			if (icon == 0) {
+				icon = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).icon;
+			}
+			return icon;
+		} catch (NameNotFoundException e) {
+			return 0;
+		}
+	}
+	/**
+	 * Gets resource id of large launcher icon.
+	 * 
+	 * @param context
+	 * @return The associated resource identifier. Returns 0 if no such resource was found. (0 is not a valid resource ID.)
+	 */
+	protected int getLargeIcon(Context context) {
+		try {
+			int icon = this.getResources().getIdentifier("ic_launcher_large", "drawable", this.getPackageName());
 			if (icon == 0) {
 				icon = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).icon;
 			}
@@ -216,7 +233,8 @@ public abstract class AbstractGcmIntentService extends IntentService {
 			notificationIntent.putExtra("notificationData", message.toString());
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			
-			int icon = this.getIcon(context);
+			int smallIcon = this.getSmallIcon(context);
+			int largeIcon = this.getLargeIcon(context);
 			NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 				.setContentIntent(pendingIntent)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -224,11 +242,14 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				.setWhen(System.currentTimeMillis())
 				.setContentTitle(notificationTitle)
 				.setContentText(notificationText);
-			if (icon != 0) {
-				notificationBuilder.setSmallIcon(icon);
-				Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), icon);
-				if (largeIcon != null && Build.VERSION.SDK_INT >= 11) {
-					notificationBuilder.setLargeIcon(largeIcon);
+			if (smallIcon != 0) {
+				notificationBuilder.setSmallIcon(smallIcon);
+			}
+			if (Build.VERSION.SDK_INT >= 11 && (smallIcon != 0 || largeIcon != 0)) {
+				int largeIconId = (largeIcon != 0 ? largeIcon : smallIcon);
+				Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), largeIconId);
+				if (largeIconBitmap != null) {
+					notificationBuilder.setLargeIcon(largeIconBitmap);
 				}
 			}
 			Notification notification = notificationBuilder.build();
