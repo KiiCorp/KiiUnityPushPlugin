@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -82,6 +83,20 @@ public abstract class AbstractGcmIntentService extends IntentService {
 			}
 		}
 		return json;
+	}
+	/**
+	 * Get ARBG color for notification color
+	 * 
+	 * @param context
+	 * @return returns negative value if notification color is not defined.
+	 */
+	protected int getNotificationColor(Context context) {
+		try {
+			int id = this.getResources().getIdentifier("notification_color", "color", this.getPackageName());
+			return this.getResources().getColor(id);
+		} catch (NotFoundException e) {
+			return -1;
+		}
 	}
 	/**
 	 * Gets resource id of small launcher icon.
@@ -250,6 +265,10 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				if (largeIconBitmap != null) {
 					notificationBuilder.setLargeIcon(largeIconBitmap);
 				}
+			}
+			int notificationColor = this.getNotificationColor(context);
+			if (Build.VERSION.SDK_INT >= 21 && notificationColor != 0) {
+				notificationBuilder.setColor(notificationColor);
 			}
 			Notification notification = notificationBuilder.build();
 			notification.defaults = 0;
