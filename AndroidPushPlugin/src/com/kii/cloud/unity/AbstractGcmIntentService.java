@@ -90,12 +90,15 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * @param context
 	 * @return returns negative value if notification color is not defined.
 	 */
-	protected int getNotificationColor(Context context) {
+	protected Integer getNotificationColor(Context context) {
 		try {
 			int id = this.getResources().getIdentifier("notification_color", "color", this.getPackageName());
+			if (id == 0) {
+				return null;
+			}
 			return this.getResources().getColor(id);
 		} catch (NotFoundException e) {
-			return -1;
+			return null;
 		}
 	}
 	/**
@@ -266,8 +269,8 @@ public abstract class AbstractGcmIntentService extends IntentService {
 					notificationBuilder.setLargeIcon(largeIconBitmap);
 				}
 			}
-			int notificationColor = this.getNotificationColor(context);
-			if (Build.VERSION.SDK_INT >= 21 && notificationColor != 0) {
+			Integer notificationColor = this.getNotificationColor(context);
+			if (Build.VERSION.SDK_INT >= 21 && notificationColor != null) {
 				notificationBuilder.setColor(notificationColor);
 			}
 			Notification notification = notificationBuilder.build();
