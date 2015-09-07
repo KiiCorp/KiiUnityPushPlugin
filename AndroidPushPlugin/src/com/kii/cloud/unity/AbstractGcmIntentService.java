@@ -263,14 +263,14 @@ public abstract class AbstractGcmIntentService extends IntentService {
 			if (smallIcon != 0) {
 				notificationBuilder.setSmallIcon(smallIcon);
 			}
-			if (Build.VERSION.SDK_INT >= 11 && largeIcon != 0) {
+			if (largeIcon != 0) {
 				Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), largeIcon);
 				if (largeIconBitmap != null) {
 					notificationBuilder.setLargeIcon(largeIconBitmap);
 				}
 			}
 			Integer notificationColor = this.getNotificationColor(context);
-			if (Build.VERSION.SDK_INT >= 21 && notificationColor != null) {
+			if (notificationColor != null) {
 				notificationBuilder.setColor(notificationColor);
 			}
 			Notification notification = notificationBuilder.build();
