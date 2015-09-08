@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -84,14 +85,48 @@ public abstract class AbstractGcmIntentService extends IntentService {
 		return json;
 	}
 	/**
-	 * Gets resource id of launcher icon.
+	 * Get ARBG color for notification color
+	 * 
+	 * @param context
+	 * @return returns negative value if notification color is not defined.
+	 */
+	protected Integer getNotificationColor(Context context) {
+		try {
+			int id = this.getResources().getIdentifier("notification_color", "color", this.getPackageName());
+			if (id == 0) {
+				return null;
+			}
+			return this.getResources().getColor(id);
+		} catch (NotFoundException e) {
+			return null;
+		}
+	}
+	/**
+	 * Gets resource id of small launcher icon.
 	 * 
 	 * @param context
 	 * @return int The associated resource identifier. Returns 0 if no such resource was found. (0 is not a valid resource ID.)
 	 */
-	protected int getIcon(Context context) {
+	protected int getSmallIcon(Context context) {
 		try {
 			int icon = this.getResources().getIdentifier("ic_launcher", "drawable", this.getPackageName());
+			if (icon == 0) {
+				icon = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).icon;
+			}
+			return icon;
+		} catch (NameNotFoundException e) {
+			return 0;
+		}
+	}
+	/**
+	 * Gets resource id of large launcher icon.
+	 * 
+	 * @param context
+	 * @return The associated resource identifier. Returns 0 if no such resource was found. (0 is not a valid resource ID.)
+	 */
+	protected int getLargeIcon(Context context) {
+		try {
+			int icon = this.getResources().getIdentifier("ic_launcher_large", "drawable", this.getPackageName());
 			if (icon == 0) {
 				icon = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0).icon;
 			}
@@ -216,7 +251,8 @@ public abstract class AbstractGcmIntentService extends IntentService {
 			notificationIntent.putExtra("notificationData", message.toString());
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			
-			int icon = this.getIcon(context);
+			int smallIcon = this.getSmallIcon(context);
+			int largeIcon = this.getLargeIcon(context);
 			NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 				.setContentIntent(pendingIntent)
 				.setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -224,12 +260,18 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				.setWhen(System.currentTimeMillis())
 				.setContentTitle(notificationTitle)
 				.setContentText(notificationText);
-			if (icon != 0) {
-				notificationBuilder.setSmallIcon(icon);
-				Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), icon);
-				if (largeIcon != null && Build.VERSION.SDK_INT >= 11) {
-					notificationBuilder.setLargeIcon(largeIcon);
+			if (smallIcon != 0) {
+				notificationBuilder.setSmallIcon(smallIcon);
+			}
+			if (largeIcon != 0) {
+				Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), largeIcon);
+				if (largeIconBitmap != null) {
+					notificationBuilder.setLargeIcon(largeIconBitmap);
 				}
+			}
+			Integer notificationColor = this.getNotificationColor(context);
+			if (notificationColor != null) {
+				notificationBuilder.setColor(notificationColor);
 			}
 			Notification notification = notificationBuilder.build();
 			notification.defaults = 0;
