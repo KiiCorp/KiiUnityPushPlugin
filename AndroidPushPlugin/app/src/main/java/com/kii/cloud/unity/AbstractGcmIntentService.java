@@ -238,11 +238,12 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * @param title Literal text or JsonPath
 	 * @param text Literal text or JsonPath
 	 */
-	protected void showNotificationArea(Context context, JSONObject message, boolean useSound, String ledColor, long vibrationMilliseconds, String title, String text) {
+	protected void showNotificationArea(Context context, JSONObject message, boolean useSound, String ledColor, long vibrationMilliseconds, String title, String ticker, String text) {
 		NotificationManager notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
 		if (notificationManager != null) {
 			
 			String notificationTitle = this.getText(message, title, this.getAppName(context));
+			String notificationTicker = this.getText(message, ticker, "");
 			String notificationText = this.getText(message, text, "");
 			
 			String launchClassName = this.getPackageManager().getLaunchIntentForPackage(this.getPackageName()).getComponent().getClassName();
@@ -259,6 +260,7 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				.setAutoCancel(true)
 				.setWhen(System.currentTimeMillis())
 				.setContentTitle(notificationTitle)
+				.setTicker(notificationTicker)
 				.setContentText(notificationText);
 			if (smallIcon != 0) {
 				notificationBuilder.setSmallIcon(smallIcon);
