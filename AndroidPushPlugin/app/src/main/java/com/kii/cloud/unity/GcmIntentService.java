@@ -27,6 +27,7 @@ public class GcmIntentService extends AbstractGcmIntentService {
 					config.getLedColor(),
 					config.getVibrationMilliseconds(),
 					config.getNotificationTitle(),
+					config.getNotificationTicker(),
 					config.getNotificationText());
 		}
 		return true;
@@ -55,8 +56,9 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		String ledColor = this.getResouceValueAsString(prefix + "ledColor");
 		int vibrationMilliseconds = this.getResouceValueAsInteger(prefix + "vibrationMilliseconds");
 		String notificationTitle = this.getResouceValueAsString(prefix + "notificationTitle");
+		String notificationTicker = this.getResouceValueAsString(prefix + "notificationTicker");
 		String notificationText = this.getResouceValueAsString(prefix + "notificationText");
-		return new NotificationAreaConfiguration(showInNotificationArea, useSound, ledColor, vibrationMilliseconds, notificationTitle, notificationText);
+		return new NotificationAreaConfiguration(showInNotificationArea, useSound, ledColor, vibrationMilliseconds, notificationTitle, notificationTicker, notificationText);
 	}
 	/**
 	 * Configuration class for showing notification area.
@@ -67,14 +69,16 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		private final String ledColor;
 		private final int vibrationMilliseconds;
 		private final String notificationTitle;
+		private final String notificationTicker;
 		private final String notificationText;
-		NotificationAreaConfiguration(boolean showInNotificationArea, boolean useSound, String ledColor, int vibrationMilliseconds, String notificationTitle, String notificationText)
+		NotificationAreaConfiguration(boolean showInNotificationArea, boolean useSound, String ledColor, int vibrationMilliseconds, String notificationTitle, String notificationTicker, String notificationText)
 		{
 			this.showInNotificationArea = showInNotificationArea;
 			this.useSound = useSound;
 			this.ledColor = ledColor;
 			this.vibrationMilliseconds = vibrationMilliseconds;
 			this.notificationTitle = notificationTitle;
+			this.notificationTicker = notificationTicker;
 			this.notificationText = notificationText;
 		}
 		public boolean isShowInNotificationArea() {
@@ -91,6 +95,9 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		}
 		public String getNotificationTitle() {
 			return notificationTitle;
+		}
+		public String getNotificationTicker() {
+			return notificationTicker;
 		}
 		public String getNotificationText() {
 			return notificationText;

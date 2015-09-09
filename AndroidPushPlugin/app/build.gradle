@@ -29,7 +29,7 @@ task copyJar(type: Copy) {
 copyJar.dependsOn(deleteJar, assembleRelease)
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:support-v4:23.0.0'
     compile files('libs/classes.jar')
     compile files('libs/google-play-services.jar')
 }
