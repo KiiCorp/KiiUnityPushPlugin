@@ -168,24 +168,34 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * 
 	 * @return
 	 */
-	protected boolean isForeground(){
-
-		if (Build.VERSION.SDK_INT >= 11) {
-			
-		}
-
-
-
-		ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
-		List<RunningAppProcessInfo> processInfoList = am.getRunningAppProcesses();
-		for(RunningAppProcessInfo info : processInfoList){
-			if(info.processName.equals(this.getPackageName()) && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND){
-				Log.d("GcmIntentService", "#####app is on foreground");
-				return true;
+	protected boolean isForeground() {
+		boolean isInForeground = false;
+		ActivityManager am = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+		Log.d("GcmIntentService", "#####Android API LEVEL=" + Build.VERSION.SDK_INT);
+		if (Build.VERSION.SDK_INT > 20) {
+			List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
+			for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+					for (String activeProcess : processInfo.pkgList) {
+						if (activeProcess.equals(this.getPackageName())) {
+							isInForeground = true;
+						}
+					}
+				}
+			}
+		} else {
+			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+			ComponentName componentInfo = taskInfo.get(0).topActivity;
+			if (componentInfo.getPackageName().equals(this.getPackageName())) {
+				isInForeground = true;
 			}
 		}
-		Log.d("GcmIntentService", "#####app is on background");
-		return false;
+		if (isInForeground) {
+			Log.d("GcmIntentService", "#####app is in foreground");
+		} else {
+			Log.d("GcmIntentService", "#####app is in background");
+		}
+		return isInForeground;
 	}
 	/**
 	 * Gets the string value to which the specified key is mapped, or null if resource file contains no mapping for the key.
