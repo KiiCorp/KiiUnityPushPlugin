@@ -168,15 +168,34 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * 
 	 * @return
 	 */
-	protected boolean isForeground(){
-		ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
-		List<RunningAppProcessInfo> processInfoList = am.getRunningAppProcesses();
-		for(RunningAppProcessInfo info : processInfoList){
-			if(info.processName.equals(this.getPackageName()) && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND){
-				return true;
+	protected boolean isForeground() {
+		boolean isInForeground = false;
+		ActivityManager am = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+		Log.d("GcmIntentService", "#####Android API LEVEL=" + Build.VERSION.SDK_INT);
+		if (Build.VERSION.SDK_INT > 20) {
+			List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
+			for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+				if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+					for (String activeProcess : processInfo.pkgList) {
+						if (activeProcess.equals(this.getPackageName())) {
+							isInForeground = true;
+						}
+					}
+				}
+			}
+		} else {
+			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+			ComponentName componentInfo = taskInfo.get(0).topActivity;
+			if (componentInfo.getPackageName().equals(this.getPackageName())) {
+				isInForeground = true;
 			}
 		}
-		return false;
+		if (isInForeground) {
+			Log.d("GcmIntentService", "#####app is in foreground");
+		} else {
+			Log.d("GcmIntentService", "#####app is in background");
+		}
+		return isInForeground;
 	}
 	/**
 	 * Gets the string value to which the specified key is mapped, or null if resource file contains no mapping for the key.
@@ -239,6 +258,7 @@ public abstract class AbstractGcmIntentService extends IntentService {
 	 * @param text Literal text or JsonPath
 	 */
 	protected void showNotificationArea(Context context, JSONObject message, boolean useSound, String ledColor, long vibrationMilliseconds, String title, String ticker, String text) {
+		Log.d("GcmIntentService", "#####showNotificationArea");
 		NotificationManager notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
 		if (notificationManager != null) {
 			
@@ -304,7 +324,10 @@ public abstract class AbstractGcmIntentService extends IntentService {
 				long[] vibratePattern = {0, vibrationMilliseconds, vibrationMilliseconds};
 				notification.vibrate = vibratePattern;
 			}
+			Log.d("GcmIntentService", "#####notificationManager.notify");
 			notificationManager.notify(0, notification);
+		} else {
+			Log.w("GcmIntentService", "#####unable to get the NotificationManager");
 		}
 	}
 	/**

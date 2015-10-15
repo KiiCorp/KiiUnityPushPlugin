@@ -3,6 +3,7 @@ package com.kii.cloud.unity;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * Default implementation of AbstractGcmIntentService.
@@ -17,6 +18,7 @@ public class GcmIntentService extends AbstractGcmIntentService {
 	}
 	@Override
 	protected boolean onHandlePushMessage(Context context, MessageType messageType, JSONObject receivedMessage, boolean isForeground) {
+		Log.d("GcmIntentService", "#####onHandlePushMessage");
 		// Get configuration from resource file.
 		NotificationAreaConfiguration config = this.getNotificationConfiguration(messageType);
 		if (config.isShowInNotificationArea() && !isForeground) {
@@ -58,6 +60,16 @@ public class GcmIntentService extends AbstractGcmIntentService {
 		String notificationTitle = this.getResouceValueAsString(prefix + "notificationTitle");
 		String notificationTicker = this.getResouceValueAsString(prefix + "notificationTicker");
 		String notificationText = this.getResouceValueAsString(prefix + "notificationText");
+
+		Log.d("GcmIntentService", "#####MessageType=" + type.name());
+		Log.d("GcmIntentService", "#####showInNotificationArea=" + showInNotificationArea);
+		Log.d("GcmIntentService", "#####useSound=" + useSound);
+		Log.d("GcmIntentService", "#####ledColor=" + ledColor);
+		Log.d("GcmIntentService", "#####vibrationMilliseconds=" + vibrationMilliseconds);
+		Log.d("GcmIntentService", "#####notificationTitle=" + notificationTitle);
+		Log.d("GcmIntentService", "#####notificationTicker=" + notificationTicker);
+		Log.d("GcmIntentService", "#####notificationText=" + notificationText);
+
 		return new NotificationAreaConfiguration(showInNotificationArea, useSound, ledColor, vibrationMilliseconds, notificationTitle, notificationTicker, notificationText);
 	}
 	/**
