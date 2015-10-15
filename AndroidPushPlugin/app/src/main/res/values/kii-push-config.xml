@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<!-- Push To App -->
+	<string name="kii_push_app_showInNotificationArea">true</string>
+	<string name="kii_push_app_useSound">true</string>
+	<!-- eg.) #ff00ff00 -->
+	<string name="kii_push_app_ledColor">#ff0000ff</string>
+	<string name="kii_push_app_vibrationMilliseconds">0</string>
+	<!-- You can use literal string or JSONPath -->
+	<string name="kii_push_app_notificationTitle">Push To App Title</string>
+	<string name="kii_push_app_notificationTicker">Push To App Ticker</string>
+	<string name="kii_push_app_notificationText">Push To App Text</string>
+
+	<!-- Push To User -->
+	<string name="kii_push_user_showInNotificationArea">true</string>
+	<string name="kii_push_user_useSound">true</string>
+	<!-- eg.) #ff00ff00 -->
+	<string name="kii_push_user_ledColor">#ff0000ff</string>
+	<string name="kii_push_user_vibrationMilliseconds">0</string>
+	<!-- You can use literal string or JSONPath -->
+	<string name="kii_push_user_notificationTitle">Push To User Title</string>
+	<string name="kii_push_user_notificationTicker">Push To User Ticker</string>
+	<string name="kii_push_user_notificationText">Push To User Text</string>
+
+	<!-- Direct Push -->
+	<string name="kii_push_direct_showInNotificationArea">true</string>
+	<string name="kii_push_direct_useSound">true</string>
+	<!-- eg.) #ff00ff00 -->
+	<string name="kii_push_direct_ledColor">#ff0000ff</string>
+	<string name="kii_push_direct_vibrationMilliseconds">0</string>
+	<!-- You can use literal string or JSONPath -->
+	<string name="kii_push_direct_notificationTitle">Direct Push Title</string>
+	<string name="kii_push_direct_notificationTicker">Direct Push Ticker</string>
+	<string name="kii_push_direct_notificationText">Direct Push Text</string>
+
+</resources>

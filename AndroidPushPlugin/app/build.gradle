@@ -1,12 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 23
     buildToolsVersion "22.0.1"
+    publishNonDefault true
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 17
+        targetSdkVersion 23
     }
 
     buildTypes {
@@ -14,6 +15,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+    }
+}
+
+android.libraryVariants.all { variant ->
+    variant.outputs.each { output ->
+        output.packageLibrary.exclude('libs/classes.jar')
+        output.packageLibrary.exclude('libs/google-play-services.jar')
     }
 }
 
@@ -29,7 +37,7 @@ task copyJar(type: Copy) {
 copyJar.dependsOn(deleteJar, assembleRelease)
 
 dependencies {
-    compile 'com.android.support:support-v4:23.0.0'
+    compile 'com.android.support:support-v4:23.0.1'
     compile files('libs/classes.jar')
     compile files('libs/google-play-services.jar')
 }
