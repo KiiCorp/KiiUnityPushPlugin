@@ -109,7 +109,7 @@
             destdir="docdir"
             additionalparam="-J-Duser.language=en"
             Locale="en_US">
-            <fileset dir="src" defaultexcludes="yes">
+            <fileset dir="app/src/main/java" defaultexcludes="yes">
                 <include name ="com/kii/cloud/unity/**" />
                 <exclude name ="**/*.html" />
             </fileset>
@@ -131,7 +131,7 @@
             destdir="docdir-rel"
             additionalparam="-J-Duser.language=en"
             Locale="en_US">
-            <fileset dir="src" defaultexcludes="yes">
+            <fileset dir="app/src/main/java" defaultexcludes="yes">
                 <include name ="com/kii/cloud/unity/**" />
                 <exclude name ="**/*.html" />
             </fileset>
