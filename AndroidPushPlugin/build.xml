@@ -1,93 +1,148 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="AndroidPushPlugin" default="help">
-
-    <!-- The local.properties file is created and updated by the 'android' tool.
-         It contains the path to the SDK. It should *NOT* be checked into
-         Version Control Systems. -->
-    <property file="local.properties" />
-
-    <!-- The ant.properties file can be created by you. It is only edited by the
-         'android' tool to add properties to it.
-         This is the place to change some Ant specific build properties.
-         Here are some properties you may want to change/update:
-
-         source.dir
-             The name of the source directory. Default is 'src'.
-         out.dir
-             The name of the output directory. Default is 'bin'.
-
-         For other overridable properties, look at the beginning of the rules
-         files in the SDK, at tools/ant/build.xml
-
-         Properties related to the SDK location or the project target should
-         be updated using the 'android' tool with the 'update' action.
-
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems.
-
-         -->
+<project name="project">
     <property file="ant.properties" />
-
-    <!-- if sdk.dir was not set from one of the property file, then
-         get it from the ANDROID_HOME env var.
-         This must be done before we load project.properties since
-         the proguard config can use sdk.dir -->
     <property environment="env" />
-    <condition property="sdk.dir" value="${env.ANDROID_HOME}">
-        <isset property="env.ANDROID_HOME" />
-    </condition>
 
-    <!-- The project.properties file is created and updated by the 'android'
-         tool, as well as ADT.
+    <property name="jar.name" value="KiiCloudStorageSDK" />
 
-         This contains project specific properties such as project target, and library
-         dependencies. Lower level build properties are stored in ant.properties
-         (or in .classpath for Eclipse projects).
+    <target name="setbranch">
+        <exec executable="sh" dir="."
+            outputproperty="branch-string">
+            <arg value="gitcid.sh" />
+            <arg value="${branch}" />
+        </exec>
+        <echo message="${branch-string}"/>
+    </target>
 
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems. -->
-    <loadproperties srcFile="project.properties" />
+    <target name="setver">
+        <exec executable="git" outputproperty="version-string">
+            <arg value="rev-list"/>
+            <arg value="-n1" />
+            <arg value="--abbrev-commit" />
+            <arg value="HEAD" />
+        </exec>
+        <echo message="${version-string}" />
+    </target>
 
-    <!-- quick check on sdk.dir -->
-    <fail
-            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
-            unless="sdk.dir"
-    />
-
-    <!--
-        Import per project custom build rules if present at the root of the project.
-        This is the place to put custom intermediary targets such as:
-            -pre-build
-            -pre-compile
-            -post-compile (This is typically used for code obfuscation.
-                           Compiled code location: ${out.classes.absolute.dir}
-                           If this is not done in place, override ${out.dex.input.absolute.dir})
-            -post-package
-            -post-build
-            -pre-clean
+    <!-- For obfuscated jar.
+    <target name="reljar" depends="clean, release, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/proguard/obfuscated.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/proguard/obfuscated.jar" tofile="jars/${jar.name}-release-${branch-string}-${version-string}.jar"/> 
+    </target> 
     -->
-    <import file="custom_rules.xml" optional="true" />
+<!--
+    <target name="reljar" depends="clean, release, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/classes.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/classes.jar" tofile="jars/${jar.name}-${branch-string}-${version-string}.jar" /> 
+    </target>
 
-    <!-- Import the actual build file.
+    <target name="reljar-debug" depends="clean, debug, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/classes.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/classes.jar" tofile="jars/${jar.name}-debug-${branch-string}-${version-string}.jar" /> 
+        <antcall target="-after-build">
+          <param name="jar.file"
+                 value="jars/${jar.name}-debug-${branch-string}-${version-string}.jar" />
+        </antcall>
+    </target>
 
-         To customize existing targets, there are two options:
-         - Customize only one target:
-             - copy/paste the target into this file, *before* the
-               <import> task.
-             - customize it to your needs.
-         - Customize the whole content of build.xml
-             - copy/paste the content of the rules files (minus the top node)
-               into this file, replacing the <import> task.
-             - customize to your needs.
+    <target name="reljar-instrument" depends="clean, instrument, setbranch, setver">
+        <jar destfile="${out.absolute.dir}/classes.jar" update="true">
+            <zipfileset includes="**/*.class" src="libs/fb-sdk-forJar.jar" />
+            <manifest>
+                <attribute name="Class-path"
+                 value="libs/fb-sdk-forJar.jar" />
+            </manifest>
+        </jar>
+        <move file="${out.absolute.dir}/classes.jar" tofile="jars/${jar.name}-instrument-${branch-string}-${version-string}.jar" /> 
+        <antcall target="-after-build">
+          <param name="jar.file"
+                 value="jars/${jar.name}-instrument-${branch-string}-${version-string}.jar" />
+        </antcall>
+    </target>
 
-         ***********************
-         ****** IMPORTANT ******
-         ***********************
-         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
-         in order to avoid having your file be overridden by tools such as "android update project"
-    -->
-    <!-- version-tag: custom -->
-    <import file="${sdk.dir}/tools/ant/build.xml" />
-    <import file="./_build.xml"/>
+    <target name="jarclean">
+        <delete dir="jars" />
+    </target>
+-->
 
+    <target name="docclean">
+        <delete dir="docdir" />
+        <delete dir="docdir-rel" />
+        <delete dir="doc-res" />
+        <mkdir dir="doc-res" />
+        <delete>
+            <fileset dir=".">
+                <include name="apidoc*.zip" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="javadoc" depends="docclean, javadoc-all, javadoc-rel" />
+
+    <target name="javadoc-all" depends="docclean">
+        <javadoc
+            doctitle="Kii Android Native Push Plugin for Unity"
+            nodeprecated="true"
+            nodeprecatedlist="true"
+            noindex="false"
+            nonavbar="false"
+            access="protected"
+            notree="true"
+            destdir="docdir"
+            additionalparam="-J-Duser.language=en"
+            Locale="en_US">
+            <fileset dir="app/src/main/java" defaultexcludes="yes">
+                <include name ="com/kii/cloud/unity/**" />
+                <exclude name ="**/*.html" />
+            </fileset>
+        </javadoc>
+        <copy todir="docdir/assets">
+            <fileset dir="doc-res"/>
+        </copy>
+    </target>
+
+    <target name="javadoc-rel" depends="docclean">
+        <javadoc
+            doctitle="Kii Android Native Push Plugin for Unity"
+            nodeprecated="true"
+            nodeprecatedlist="true"
+            noindex="false"
+            nonavbar="false"
+            access="protected"
+            notree="true"
+            destdir="docdir-rel"
+            additionalparam="-J-Duser.language=en"
+            Locale="en_US">
+            <fileset dir="app/src/main/java" defaultexcludes="yes">
+                <include name ="com/kii/cloud/unity/**" />
+                <exclude name ="**/*.html" />
+            </fileset>
+        </javadoc>
+        <copy todir="docdir-rel/assets">
+            <fileset dir="doc-res"/>
+        </copy>
+    </target>
+
+    <target name="doc_archive" depends="javadoc, setbranch, setbranch, setver">
+        <zip destfile="apidoc-all-${branch-string}-${version-string}.zip" basedir="docdir" />
+        <zip destfile="apidoc-release-${branch-string}-${version-string}.zip" basedir="docdir-rel" />
+    </target>
 </project>
